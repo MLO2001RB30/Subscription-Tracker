@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "start": "NODE_OPTIONS='--no-experimental-strip-types --no-experimental-detect-module' expo start",
+    "android": "NODE_OPTIONS='--no-experimental-strip-types --no-experimental-detect-module' expo start --android",
+    "ios": "NODE_OPTIONS='--no-experimental-strip-types --no-experimental-detect-module' expo start --ios",
     "web": "expo start --web",
-    "postinstall": "bash fix-expo-modules.sh"
+    "postinstall": "bash fix-expo-modules.sh",
+    "clear": "NODE_OPTIONS='--no-experimental-strip-types --no-experimental-detect-module' expo start --clear"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
