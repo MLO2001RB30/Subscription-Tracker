@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "start": "NODE_OPTIONS='--no-experimental-strip-types' expo start",
+    "android": "NODE_OPTIONS='--no-experimental-strip-types' expo start --android",
+    "ios": "NODE_OPTIONS='--no-experimental-strip-types' expo start --ios",
     "web": "expo start --web"
   },
   "dependencies": {
