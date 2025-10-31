@@ -11,13 +11,32 @@ En mobilapp til at holde styr på dine abonnementer og få indblik i dit forbrug
 - Kategorisering af abonnementer
 - Notifikationer om kommende fornyelser
 
+## Prerequisites
+
+**Node.js Version Requirement:**
+- Node.js 18 LTS or Node.js 20 LTS (recommended)
+- **Node.js 22+ is NOT supported** by Expo SDK 53
+
+If you're running Node 22 or newer, install/start commands will fail with a clear error message.
+See [NODE_VERSION_FIX.md](../NODE_VERSION_FIX.md) for detailed instructions on switching versions.
+
+### Quick Start with NVM
+```bash
+# Install Node 20 (if not already installed)
+nvm install 20
+nvm use  # Uses .nvmrc to automatically select Node 20
+
+# Verify
+node --version  # Should show v20.x.x
+```
+
 ## Setup
 
 ### Frontend (React Native + Expo)
 
 1. Installer dependencies:
 ```bash
-npm install
+npm install  # Automatically checks Node version before installing
 ```
 
 2. Opret en `.env` fil i rodmappen med følgende indhold:
@@ -30,7 +49,8 @@ BACKEND_URL=http://localhost:8000
 
 3. Start Expo udviklingsserveren:
 ```bash
-npx expo start --clear
+npm start  # Automatically checks Node version before starting
+# Or: npm run clear (to clear cache)
 ```
 
 ### Backend (FastAPI)

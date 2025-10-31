@@ -14,6 +14,10 @@ for /node_modules/expo-modules-core/src/index.ts
 
 Expo SDK 53 is **officially compatible with Node.js 18 LTS and Node.js 20 LTS only**. Node v22 is too new and not yet supported.
 
+> [!IMPORTANT]
+> Running `npm install` or `npm start` inside `SubTrackDK/` now enforces this requirement. The `preinstall`/`prestart` checks will
+> exit with a clear error message if your local Node version is not 18.x or 20.x. Use one of the options below to switch versions before retrying.
+
 ---
 
 ## Option 1: Use NVM (Recommended)
@@ -32,11 +36,18 @@ nvm use 20
 node --version  # Should show v20.x.x
 ```
 
-### Run the App
+### Quick Setup with .nvmrc
+The project includes an `.nvmrc` file that automatically selects Node 20:
 ```bash
 cd SubTrackDK
-npm install  # Reinstall with correct Node version
-npx expo start
+nvm use  # Reads .nvmrc and switches to Node 20
+node --version  # Should show v20.x.x
+```
+
+### Run the App
+```bash
+npm install  # Reinstall with correct Node version (preinstall check runs automatically)
+npm start    # Or: npm run start (prestart check runs automatically)
 ```
 
 ---
@@ -276,28 +287,41 @@ npx expo start
 
 ---
 
-## Project Scripts (Updated)
+## Automated Node Version Checks
 
-The `package.json` has been updated with NODE_OPTIONS flags, but **these don't work with Node v22** due to the ESM/TypeScript conflict.
+The project now includes automated checks to prevent using unsupported Node versions:
 
-**Current scripts (won't work on Node v22):**
-```json
-{
-  "scripts": {
-    "start": "NODE_OPTIONS='--no-experimental-strip-types' expo start",
-    "android": "NODE_OPTIONS='--no-experimental-strip-types' expo start --android",
-    "ios": "NODE_OPTIONS='--no-experimental-strip-types' expo start --ios"
-  }
-}
+### Files Added
+1. **`scripts/check-node.js`** - Validates Node version is 18.x or 20.x
+2. **`.nvmrc`** - Specifies Node 20 as the default version for NVM/Volta
+3. **`package.json` updates:**
+   - `"engines": { "node": ">=18 <21" }` - Documents supported versions
+   - `"preinstall": "node scripts/check-node.js"` - Runs before `npm install`
+   - `"prestart": "node scripts/check-node.js"` - Runs before `npm start`
+
+### What Happens Now
+When you run `npm install` or `npm start` with Node 22:
+```bash
+$ npm install
+
+SubTrackDK requires Node.js 18 LTS or 20 LTS.
+You are running Node.js v22.21.1.
+Please switch to a supported Node version before continuing.
+See NODE_VERSION_FIX.md for detailed instructions.
 ```
 
-**With Node v20, you can use simple scripts:**
+The command exits immediately with a clear error message, preventing confusing Metro bundler crashes.
+
+### Project Scripts
+**Current scripts (with automated checks):**
 ```json
 {
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios"
+    "preinstall": "node scripts/check-node.js",
+    "prestart": "node scripts/check-node.js",
+    "start": "NODE_OPTIONS='--no-experimental-strip-types --no-experimental-detect-module' expo start",
+    "android": "NODE_OPTIONS='--no-experimental-strip-types --no-experimental-detect-module' expo start --android",
+    "ios": "NODE_OPTIONS='--no-experimental-strip-types --no-experimental-detect-module' expo start --ios"
   }
 }
 ```

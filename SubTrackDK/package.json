@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "preinstall": "node scripts/check-node.js",
+    "prestart": "node scripts/check-node.js",
     "start": "NODE_OPTIONS='--no-experimental-strip-types --no-experimental-detect-module' expo start",
     "android": "NODE_OPTIONS='--no-experimental-strip-types --no-experimental-detect-module' expo start --android",
     "ios": "NODE_OPTIONS='--no-experimental-strip-types --no-experimental-detect-module' expo start --ios",
@@ -42,6 +44,9 @@
     "@types/react": "~19.0.10",
     "expo-module-scripts": "^4.1.7",
     "typescript": "~5.8.3"
+  },
+  "engines": {
+    "node": ">=18 <21"
   },
   "private": true
 }
