@@ -295,12 +295,23 @@ All tables have RLS enabled. The backend uses Supabase service role key, which b
 
 ---
 
+## Backend Integration Status
+
+✅ **COMPLETED** (2025-10-31) - Backend has been fully migrated to use the new schema:
+   - ✅ Backend models updated to match new schema
+   - ✅ Supabase client rewritten with official Python SDK
+   - ✅ Analytics event logging implemented
+   - ✅ All API endpoints updated
+   - 🔄 Token encryption/decryption (to be implemented when Tink integration is active)
+
+**See `BACKEND_MIGRATION_SUMMARY.md` for complete migration details.**
+
 ## Next Steps
 
-1. **Backend Integration:**
-   - Update backend models to match new schema
-   - Implement token encryption/decryption
-   - Add analytics event logging
+1. **Frontend Integration:**
+   - Update React Native models to use new subscription fields
+   - Add analytics tracking to mobile app
+   - Implement merchant cancellation link display
 
 2. **Data Population:**
    - Expand merchant_cancel_links to 250+ merchants (PRD target)

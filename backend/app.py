@@ -16,7 +16,10 @@ import re
 import datetime as dt
 
 from models import UserCreate, UserInDB, Token, TokenData, SubscriptionCreate, SubscriptionInDB, get_password_hash, verify_password
-from supabase_client import get_user_by_email, create_user, create_subscription, get_subscriptions_by_owner, delete_subscription
+from supabase_client import (
+    get_user_by_email, create_user, create_subscription, get_subscriptions_by_owner,
+    delete_subscription, update_user_last_login, log_analytics_event, get_merchant_cancel_link
+)
 
 load_dotenv()
 
@@ -94,28 +97,48 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"}
         )
+
+    # Update last login timestamp
+    await update_user_last_login(user.id)
+
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(data={"sub": user.email}, expires_delta=access_token_expires)
     return {"access_token": access_token, "token_type": "bearer"}
 
 @app.post("/api/subscriptions", response_model=SubscriptionInDB)
 async def create_subscription_endpoint(subscription: SubscriptionCreate, current_user: UserInDB = Depends(get_current_user)):
-    # Create subscription data without transaction_date for now (until database is updated)
+    # Create subscription data with all fields from new schema
     subscription_data = {
         "title": subscription.title,
         "amount": subscription.amount,
         "renewal_date": subscription.renewal_date,
-        "category": subscription.category,
+        "category": subscription.category or "Øvrige",
         "logo_url": subscription.logo_url,
-        "currency": subscription.currency,
-        "owner_id": current_user.id
+        "currency": subscription.currency or "DKK",
+        "owner_id": current_user.id,
+        "frequency": subscription.frequency or "måned",
+        "source": subscription.source or "manual"
     }
-    
-    # Only add transaction_date if it's provided and not None
-    if hasattr(subscription, 'transaction_date') and subscription.transaction_date:
+
+    # Add optional fields if provided
+    if subscription.transaction_date:
         subscription_data["transaction_date"] = subscription.transaction_date
-    
+    if subscription.confidence_score is not None:
+        subscription_data["confidence_score"] = subscription.confidence_score
+    if subscription.notes:
+        subscription_data["notes"] = subscription.notes
+
     new_sub = await create_subscription(subscription_data)
+
+    # Log analytics event
+    await log_analytics_event(
+        user_id=current_user.id,
+        event_type="subscription_added",
+        subscription_id=new_sub["id"],
+        merchant_name=subscription.title,
+        event_data={"source": subscription.source or "manual", "category": subscription.category}
+    )
+
     return SubscriptionInDB(**new_sub)
 
 @app.get("/api/subscriptions", response_model=List[SubscriptionInDB])
@@ -128,13 +151,29 @@ async def delete_subscription_endpoint(subscription_id: int, current_user: UserI
     # First check if subscription belongs to current user
     subs = await get_subscriptions_by_owner(current_user.id)
     subscription = next((sub for sub in subs if sub["id"] == subscription_id), None)
-    
+
     if not subscription:
         raise HTTPException(status_code=404, detail="Subscription not found or not owned by user")
-    
-    # Delete the subscription
+
+    # Log analytics event before deleting
+    await log_analytics_event(
+        user_id=current_user.id,
+        event_type="subscription_deleted",
+        subscription_id=subscription_id,
+        merchant_name=subscription.get("title")
+    )
+
+    # Delete the subscription (soft delete)
     await delete_subscription(subscription_id)
     return {"message": "Subscription deleted successfully"}
+
+@app.get("/api/merchant-links/{merchant_name}")
+async def get_merchant_link(merchant_name: str, current_user: UserInDB = Depends(get_current_user)):
+    """Get cancellation link for a specific merchant"""
+    link = await get_merchant_cancel_link(merchant_name)
+    if not link:
+        raise HTTPException(status_code=404, detail="Merchant not found")
+    return link
 
 @app.get("/api/user/summary")
 async def get_user_summary(current_user: UserInDB = Depends(get_current_user)):
@@ -512,7 +551,8 @@ Vigtige regler:
                             "confidence": result.get("confidence", 70),
                             "renewal_date": renewal_date,
                             "transaction_date": sorted_dates[-1] if sorted_dates else None,  # Most recent transaction date
-                            "reasoning": result.get("reasoning", "AI detected subscription")
+                            "reasoning": result.get("reasoning", "AI detected subscription"),
+                            "source": "tink"  # Mark as coming from Tink integration
                         })
         
         print(f"🎯 AI detected {len(detected_subscriptions)} subscriptions")
@@ -697,7 +737,8 @@ Vigtige regler:
                     "confidence": result.get("confidence", 70),
                     "renewal_date": renewal_date,
                     "transaction_date": transaction_date,  # Include actual transaction date from PDF
-                    "reasoning": result.get("reasoning", "PDF AI detected subscription")
+                    "reasoning": result.get("reasoning", "PDF AI detected subscription"),
+                    "source": "pdf"  # Mark as coming from PDF upload
                 })
         
         print(f"🎯 PDF AI detected {len(detected_subscriptions)} subscriptions")
