@@ -1,0 +1,99 @@
+Product Requirements Document – “SubTrack DK”
+A super-light mobile app that discovers all active subscriptions for Danish users and provides one-tap access to cancel pages.
+________________________________________
+1. Problem Statement
+Danish consumers lose money on forgotten, fragmented subscriptions. They want a single, safe overview and an ultra-simple off-ramp without digging through bank statements or email receipts.
+________________________________________
+2. Goals & Success Metrics
+Objective	KPI (North-Star)	Target at Post-MVP (3 mo)
+Discover most recurring charges	% users who see ≥3 subscriptions detected	≥ 70 %
+Drive actual cancellations	Avg. cancelled subs per Monthly Active User (MAU)	0.8 / MAU
+Prove retention value	30-day rolling retention (D30)	45 %
+Stay friction-free	Onboarding completion time	≤ 2 min (bank connect → list)
+Stay compliant	Data-protection incidents	0
+________________________________________
+3. In-Scope Personas
+Persona	“Job-to-be-done”	Pain Point
+Budget-Max (25-35, tech-savvy)	Track all auto-charges, cut waste fast	Can’t remember what’s billed on which card
+Family CFO (35-50)	Audit household spending quarterly	Manual Excel + PDF statements is slow
+Student Saver (18-25)	Avoid overdraft from forgotten trials	Lacks overview, forgets to cancel trials
+________________________________________
+ 
+4. User Stories (MVP)
+Priority	As a (persona) I want to…	Acceptance Criteria
+P0	connect my Danish bank in seconds	Tink Link flow, MitID auth, success rate ≥ 90 %
+P0	see a clean list of all recurring payments	Grouped by merchant, next charge date predicted
+P0	tap a merchant and jump straight to its cancellation path	Deep-link, mailto or phone number prefilled
+P1	get a push alert when a new subscription appears	Detected by parser on fresh transactions
+P1	pause notifications for a merchant	Toggle stored locally/server
+P2	export the list to CSV	File downloads correctly on iOS/Android
+________________________________________
+ 
+5. Functional Requirements
+1.	Bank Connection
+o	Integrate Tink Link SDK with Hosted Authorization
+o	Supported banks: Danske, Nordea, Jyske, Sydbank, Arbejdernes Landsbank (≥ 85 % coverage)
+2.	Data Fetch & Storage
+o	Pull last 90 days of transactions on first sync, then daily delta sync
+o	Store tokens encrypted (AES-256) in Supabase/Postgres
+3.	Subscription Detection Engine
+o	Regex + frequency (28-33 days, 90 days, 365 days)
+o	Merchant whitelist JSON v1 (top 250 DK + global brands)
+o	Flag false-positives (e.g., rent, salary) via negative list
+4.	Cancel-Action Map
+o	JSON schema: {merchant_id, label, type, target}
+o	type = url, mailto, tel
+o	Analytics event cancel_click logged with merchant_id
+5.	Frontend (React Native + Expo)
+o	Screens: Onboarding, Bank Connect, Overview, Merchant Detail
+o	Overview sorted by monthly spend desc.
+o	Shimmer loader ≤ 5 s while parsing
+6.	Push Notifications
+o	Uses Expo push tokens
+o	Event types: new_subscription, price_increase (P2)
+7.	Security & Compliance
+o	RLS (row-level security) per user in Supabase
+o	Data retention 90 days rolling unless user extends
+________________________________________
+ 
+6. Non-Functional Requirements
+Category	Requirement
+Performance	First list render ≤ 1 500 ms on 4G
+Uptime	≥ 99 % API availability
+Privacy	GDPR Art. 6(1)(a) explicit consent; data deletion < 24 h on request
+Accessibility	WCAG 2.1 AA colour contrast; VoiceOver labels
+________________________________________
+7. Out of Scope (MVP)
+•	E-mail receipt parsing (Gmail/Outlook)
+•	Apple/Google in-app subscription management
+•	In-app account cancellation on user’s behalf (legal proxy)
+•	Multi-country banking (Sweden, Norway etc.)
+________________________________________
+8. Dependencies & Risks
+Dependency/Risk	Mitigation
+Tink API quota / pricing	Begin on sandbox, budget €0.10 user/mo at scale
+Merchant cancel link changes	Crowd-source “report broken link” in app
+Token refresh failure after 90 days	Schedule 15-day renewal reminder push
+App Store review rejection (bank login)	Provide explanatory text + screenshots of consent screen
+________________________________________
+ 
+9. Milestones & Timeline (12 weeks)
+Week	Deliverable
+1-2	UX wireframes, link-map research kick-off
+3-4	Tink integration end-to-end (sandbox)
+5-6	Parser v1 + unit tests
+7	Frontend List & Detail screens
+8	Notification service, analytics events
+9	Pen-test, GDPR docs, DPA signed
+10	Private beta (50 users)
+11	Iteration → bug-fix freeze
+12	Public TestFlight / Google Beta & landing-page launch
+________________________________________
+10. Open Questions
+1.	Exact threshold for classifying yearly subscriptions (Netflix annual vs. insurance).
+2.	How many “unknown merchants” before we add manual tag feature?
+3.	Potential revenue model post-MVP (freemium, affiliate switch offers, premium alerts).
+________________________________________
+Document owner: Mads, Product Lead
+Version: 1.0 | Last updated: 2025-06-14
+

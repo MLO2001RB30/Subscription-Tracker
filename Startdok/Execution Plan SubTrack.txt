@@ -1,0 +1,68 @@
+Execution Plan: SubTrack DK (MVP)
+This document outlines the strategic execution plan to develop, test, and launch the Minimum Viable Product (MVP) for SubTrack DK within the specified 12-week timeline. The plan is derived directly from the provided Product Requirements Document (PRD v1.0).
+1. Executive Summary
+Our mission is to launch a super-light, secure mobile app for Danish consumers that provides a single, consolidated view of their recurring subscriptions and a one-tap path to cancellation. This plan details the phased approach for development, risk mitigation, and launch, with a core focus on delivering a high-value, friction-free user experience. The primary goal is to validate the core product hypotheses: that users will connect their bank, discover forgotten subscriptions, and derive enough value to remain active users.
+2. Core Team & Responsibilities
+To successfully execute this plan, the following roles are essential:
+•	Product Lead (Mads): Owns the product vision, prioritizes the backlog, manages stakeholders, and ensures deliverables align with the PRD.
+•	Backend Developer: Responsible for the Supabase setup, Tink SDK integration, subscription detection engine, and API development.
+•	Frontend (Mobile) Developer: Responsible for building the React Native + Expo application, implementing the UI/UX, and connecting to the backend APIs.
+•	UI/UX Designer: Responsible for creating the wireframes, user flows, and high-fidelity designs that ensure a simple and intuitive user experience.
+•	QA/Test Engineer: Responsible for creating and executing test plans, managing the private beta, and ensuring the app meets all functional and non-functional requirements.
+3. Phased Execution Timeline (12 Weeks)
+The 12-week timeline from the PRD is structured into four distinct phases:
+Phase 1: Foundation & Design (Weeks 1-2)
+•	Objective: Finalize the user experience and technical architecture.
+•	Key Activities:
+o	UX Wireframing: Create low-fidelity wireframes for all key screens (Onboarding, Bank Connect, Overview, Merchant Detail). (Owner: UI/UX)
+o	Link-Map Research: Begin compiling the initial Cancel-Action Map JSON for the top 100 Danish and global merchants. (Owner: Product Lead)
+o	Technical Scoping: Set up development environments, including Supabase project, Expo framework, and Tink sandbox account. (Owner: Backend/Frontend Devs)
+•	Deliverable: Signed-off wireframes and initial technical project setup.
+Phase 2: Core Backend & Integration (Weeks 3-6)
+•	Objective: Build the data pipeline and subscription detection logic.
+•	Key Activities:
+o	Tink Integration: Implement the Tink Link SDK for bank connection and transaction fetching in the sandbox environment. (Owner: Backend Dev)
+o	Parser v1 Development: Build the subscription detection engine based on Regex, frequency, and the merchant whitelist. Implement the negative list to filter out false positives. (Owner: Backend Dev)
+o	Unit Testing: Write comprehensive unit tests for the parser and data handling logic. (Owner: Backend Dev)
+•	Deliverable: A functional backend API that can connect to a bank, fetch transactions, and identify potential subscriptions.
+Phase 3: Frontend & Feature Implementation (Weeks 7-8)
+•	Objective: Create a functional, user-facing application.
+•	Key Activities:
+o	Screen Development: Build the Frontend List & Detail screens in React Native, ensuring adherence to performance targets (shimmer loader ≤ 5s). (Owner: Frontend Dev)
+o	API Integration: Connect the frontend to the backend APIs to display the subscription list. (Owner: Frontend Dev)
+o	Notification Service: Implement the Expo push notification service for new_subscription alerts. (Owner: Backend/Frontend Devs)
+o	Analytics: Integrate analytics events, especially cancel_click, to track core metrics. (Owner: Frontend Dev)
+•	Deliverable: A connected mobile app where a user can connect a bank and see a list of their subscriptions.
+Phase 4: Testing, Polish & Launch (Weeks 9-12)
+•	Objective: Ensure the app is secure, stable, and ready for public release.
+•	Key Activities:
+o	Security & Compliance (Week 9): Conduct a security penetration test. Finalize GDPR documentation and Data Processing Agreements (DPA). Implement RLS in Supabase. (Owner: Product Lead, Backend Dev)
+o	Private Beta (Week 10): Launch a private beta with 50 targeted users (ideally from the in-scope personas). Gather feedback on usability, parser accuracy, and overall value. (Owner: QA, Product Lead)
+o	Iteration & Bug-Fix Freeze (Week 11): Address critical feedback and bugs from the private beta. Prepare the app for store submission. Freeze all new feature development. (Owner: All Devs)
+o	Public Launch (Week 12): Submit the app to TestFlight and Google Play Beta. Launch the promotional landing page to start gathering interest and a waitlist.
+•	Deliverable: A polished, secure MVP available for public beta testing and a live landing page.
+4. Risk Management & Mitigation
+This plan actively incorporates the mitigations outlined in the PRD's risk section.
+Dependency/Risk	Mitigation Strategy & Action Item	Owner
+Tink API quota / pricing	Action: Monitor sandbox usage closely. Model costs based on private beta user data to confirm the €0.10 user/mo budget is viable at scale.	Product Lead
+Merchant cancel link changes	Action: Implement the "report broken link" feature in the Merchant Detail screen. Create a simple backend process to review and update reported links.	Frontend Dev, Product Lead
+Token refresh failure after 90 days	Action: Schedule a P1 user story to implement a 15-day renewal reminder push notification before the first cohort of users reaches the 75-day mark.	Backend Dev, Product Lead
+App Store review rejection	Action: During Week 11, prepare a detailed submission package including a video of the bank login flow, clear text explaining why bank access is necessary (for the core feature), and screenshots of the explicit consent screen.	Product Lead
+5. Addressing Open Questions (Post-MVP Strategy)
+The MVP launch is the beginning of our learning process. The following open questions will be prioritized post-launch based on data and user feedback.
+1.	Yearly Subscription Threshold:
+o	Action Plan: Use analytics from the first 1,000 users to analyze transaction descriptions for "annual," "yearly," or "12 months." Use this data to refine the parser logic in a v1.1 update.
+2.	Manual Tag Feature for "Unknown Merchants":
+o	Action Plan: Track the percentage of transactions that are recurring but not matched by our whitelist. If this figure exceeds a pre-defined threshold (e.g., >15% of all detected subscriptions across the user base), prioritize the development of a "manual tag" feature.
+3.	Post-MVP Revenue Model:
+o	Action Plan: The primary focus for the first 3-6 months post-launch is to achieve the 45% D30 retention goal. Once retention is proven, we will explore the proposed models:
+	Affiliate Switch Offers: A/B test offering users alternatives (e.g., cheaper mobile plans, different streaming services) on the merchant detail page.
+	Premium Alerts: Develop and test the value of premium-only alerts like price_increase.
+	Freemium: Keep the core discovery and cancellation flow free, but gate advanced features (e.g., exporting, custom categories) behind a small subscription.
+6. Communication & Reporting Cadence
+To ensure alignment and rapid progress, the team will adhere to the following:
+•	Daily Stand-ups (15 min): Discuss progress, next steps, and blockers.
+•	Weekly Sprint Planning: Review the backlog and commit to the week's deliverables.
+•	Bi-Weekly Retrospectives: Discuss what went well, what didn't, and how to improve the process.
+•	Monthly Stakeholder Update: Mads will provide a summary of progress against the timeline and KPIs to all relevant stakeholders.
+
