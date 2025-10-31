@@ -9,7 +9,7 @@ import { createSubscription } from '../api/api';
 const BACKEND_URL = 'http://192.168.0.5:8080'; // Local network IP
 
 // Component to display logo with fallback
-const SubscriptionLogo = ({ logoUrl, name }: { logoUrl: string | null; name: string }) => {
+const SubscriptionLogo = ({ logoUrl, name }) => {
   const [logoError, setLogoError] = useState(false);
 
   if (logoUrl && !logoError) {
@@ -30,47 +30,20 @@ const SubscriptionLogo = ({ logoUrl, name }: { logoUrl: string | null; name: str
   );
 };
 
-interface Transaction {
-  id: string;
-  descriptions: {
-    display: string;
-    original: string;
-  };
-  amount: {
-    value: {
-      unscaledValue: string;
-      scale: string;
-    };
-    currencyCode: string;
-  };
-  dates: {
-    booked: string;
-  };
-  status: string;
-}
-
-interface DetectedSubscription {
-  name: string;
-  price: number;
-  renewalDate: string;
-  transactionDate?: string;
-  domain: string;
-  confidence: number;
-  frequency: string;
-}
+// Transaction and DetectedSubscription types removed - now using plain JavaScript
 
 const ImportSubscriptionsScreen = ({ route, navigation }) => {
   const { token } = route.params;
   const [isLoading, setIsLoading] = useState(true);
-  const [detectedSubscriptions, setDetectedSubscriptions] = useState<DetectedSubscription[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [detectedSubscriptions, setDetectedSubscriptions] = useState([]);
+  const [error, setError] = useState(null);
 
   // Helper function to extract domain from company name for Clearbit API
-  const getDomainFromCompanyName = (companyName: string): string | null => {
+  const getDomainFromCompanyName = (companyName) => {
     const lowerName = companyName.toLowerCase();
     
     // Common domain mappings for Danish/international services
-    const domainMap: Record<string, string> = {
+    const domainMap = {
       // Streaming services
       'netflix': 'netflix.com',
       'spotify': 'spotify.com',
@@ -177,7 +150,7 @@ const ImportSubscriptionsScreen = ({ route, navigation }) => {
   };
 
   // Helper function to intelligently categorize subscriptions based on company name
-  const categorizeSubscription = (companyName: string): string => {
+  const categorizeSubscription = (companyName) => {
     const lowerName = companyName.toLowerCase();
     
     // Streaming & Entertainment
@@ -364,7 +337,7 @@ const ImportSubscriptionsScreen = ({ route, navigation }) => {
   };
 
   // Function to validate existing subscriptions based on recent transactions
-  const validateExistingSubscriptions = async (transactions: any[]) => {
+  const validateExistingSubscriptions = async (transactions) => {
     try {
       console.log('🔍 Validating existing subscriptions against recent transactions...');
       

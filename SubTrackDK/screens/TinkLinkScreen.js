@@ -14,7 +14,7 @@ const TinkLinkScreen = ({ navigation }) => {
   const [error, setError] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false); // Prevent double processing
 
-  const handleNavigationStateChange = async (navState: any) => {
+  const handleNavigationStateChange = async (navState) => {
     const { url } = navState;
     
     // Check if the URL contains the authorization code
