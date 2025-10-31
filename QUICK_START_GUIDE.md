@@ -1,30 +1,58 @@
 # SubTrack DK - Quick Start Guide
 
+## ⚠️ IMPORTANT: Node.js Version Requirement
+
+**Your system is using Node.js v22, which is NOT compatible with Expo SDK 53.**
+
+You need **Node.js 18 LTS or Node.js 20 LTS** to run this app.
+
+### Quick Fix (5 minutes):
+```bash
+# Install NVM (Node Version Manager)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
+
+# Restart your terminal, then:
+nvm install 20
+nvm use 20
+
+# Verify
+node --version  # Should show v20.x.x
+```
+
+**See `NODE_VERSION_FIX.md` for detailed instructions and alternatives.**
+
+---
+
 ## What Was Fixed
 
 ### ✅ Critical Fixes Applied
 
 1. **App.js Syntax Error** - Removed invalid JSON (lines 11-42)
-2. **Node.js Compatibility** - Added NODE_OPTIONS flag to package.json
-3. **Expo Plugin Conflict** - Removed expo-auth-session from plugins
-
-The app should now start successfully!
+2. **Expo Plugin Conflict** - Removed expo-auth-session from plugins
+3. **Node.js v22 Issue Identified** - Requires Node v18 or v20
 
 ---
 
-## How to Launch the App
+## How to Launch the App (After Installing Node 20)
 
-### Step 1: Navigate to App Directory
+### Step 1: Switch to Node 20
+```bash
+nvm use 20  # If using NVM
+node --version  # Verify it's v20.x.x
+```
+
+### Step 2: Navigate to App Directory
 ```bash
 cd SubTrackDK
 ```
 
-### Step 2: Install Dependencies (if not done)
+### Step 3: Clean Install Dependencies
 ```bash
+rm -rf node_modules package-lock.json
 npm install
 ```
 
-### Step 3: Start Expo
+### Step 4: Start Expo
 ```bash
 npx expo start
 ```
