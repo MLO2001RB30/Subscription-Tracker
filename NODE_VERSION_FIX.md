@@ -14,6 +14,11 @@ for /node_modules/expo-modules-core/src/index.ts
 
 Expo SDK 53 is **officially compatible with Node.js 18 LTS and Node.js 20 LTS only**. Node v22 is too new and not yet supported.
 
+> [!IMPORTANT]
+> Running `npm install` or `npm start` inside `SubTrackDK/` now enforces this requirement. The `preinstall`/`prestart` checks will
+> exit with a clear error message if your local Node version is not 18.x or 20.x. Use one of the options below to switch versions
+> before retrying.
+
 ---
 
 ## Option 1: Use NVM (Recommended)
